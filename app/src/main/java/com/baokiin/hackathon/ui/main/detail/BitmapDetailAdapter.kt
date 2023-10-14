@@ -60,7 +60,7 @@ class BitmapDetailAdapter : BaseRclvAdapter<BitmapAdapter.BitmapVHData>() {
     }
 
     fun nextItem() {
-        if(currentPosition < dataSet.size) {
+        if(currentPosition < dataSet.size-1) {
             currentPosition += 1
             dataSet[oldPositionItem].isSelected = false
             notifyItemChanged(oldPositionItem, PAYLOAD_ITEM_SELECTED)

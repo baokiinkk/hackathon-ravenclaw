@@ -42,15 +42,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         initLoadMoreTwoWay()
     }
 
-    override fun onDestroy() {
-        lifecycleScope.launch(Dispatchers.IO){
-            LoadImage.clearDiskCache()
-            bitmapDbHelper.deleteTable()
-            withContext(Dispatchers.Main){
-                super.onDestroy()
-            }
-        }
-    }
 
     override fun listenerView() {
         super.listenerView()
