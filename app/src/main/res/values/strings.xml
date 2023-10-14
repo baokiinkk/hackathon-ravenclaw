@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">ravenclaw</string>
+    <string name="title_noti">Thông báo</string>
+    <string name="label_close">Đóng</string>
+    <string name="title_continues">Tiếp tục</string>
+    <string name="title_success">Thành công</string>
+    <string name="title_error">Thất bại</string>
+    <string name="message_error_request_gallery_permission">Quý khách vui lòng cho phép ứng dụng truy cập thư viện ảnh để sử dụng tính năng này</string>
+
 </resources>

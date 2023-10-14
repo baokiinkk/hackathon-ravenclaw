@@ -78,6 +78,17 @@ object RecyclerViewExt {
         })
     }
 
+    fun RecyclerView.loadMore(loadMore: (Int) -> Unit) {
+        addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                val lastVisibleItemPosition = getLastVisibleItemPosition()
+                if (dy > 0)
+                    loadMore(lastVisibleItemPosition)
+            }
+        })
+    }
+
 
     class LinearSpaceItemLastDecoration(private val space: Int) : RecyclerView.ItemDecoration() {
 

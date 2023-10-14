@@ -11,9 +11,6 @@ inline fun <reified T : Any> Gson.fromJson(json: String): T = this.fromJson(json
 
 fun Any.toJson(): String = gson.toJson(this)
 
-inline fun <reified T> Gson.fromJsonTypeToken(json: String): T =
-    this.fromJson(json, object : TypeToken<T>() {}.type)
-
 inline fun <reified T> String.fromJson(): T {
     return gson.fromJson(this, T::class.java)
 }

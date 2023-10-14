@@ -6,6 +6,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 import com.baokiin.hackathon.extension.launch.VnpayLaunch
+import com.baokiin.hackathon.ui.main.dialog.ConfirmDialog
+import com.baokiin.hackathon.ui.main.dialog.LoadingDialog
 
 abstract class BaseActivity<DB : ViewDataBinding>(@LayoutRes open val layoutRes: Int) :
     AppCompatActivity() {
@@ -16,8 +18,12 @@ abstract class BaseActivity<DB : ViewDataBinding>(@LayoutRes open val layoutRes:
     protected lateinit var binding: DB
 
     protected val vnpayLaunch by lazy {
-        VnpayLaunch(this,lifecycle)
+        VnpayLaunch(this, lifecycle)
     }
+
+    val confirm by lazy { ConfirmDialog(this) }
+
+    val loading by lazy { LoadingDialog(this) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         onPrepareInitView()
@@ -34,7 +40,19 @@ abstract class BaseActivity<DB : ViewDataBinding>(@LayoutRes open val layoutRes:
 
     }
 
-    open fun onInitBinding(){}
+    fun hideLoading() {
+        if (loading.isShowing) {
+            loading.dismiss()
+        }
+    }
+
+    fun showLoading() {
+        if (!loading.isShowing) {
+            loading.show()
+        }
+    }
+
+    open fun onInitBinding() {}
 
 //    /**
 //     * Call before create view
@@ -44,13 +62,14 @@ abstract class BaseActivity<DB : ViewDataBinding>(@LayoutRes open val layoutRes:
     /**
      * Call after finish create view
      */
-    open fun onInitView(){}
-    open fun onPrepareInitView(){}
+    open fun onInitView() {}
+    open fun onPrepareInitView() {}
+
     /**
      * Call after init view , observer data changed
      */
-    open fun observerData(){}
-    open fun listenerView(){}
+    open fun observerData() {}
+    open fun listenerView() {}
 
     open fun handleBack() {
 

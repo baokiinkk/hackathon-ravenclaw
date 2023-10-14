@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="16dp"
+    android:background="@drawable/shape_white_bg_corner_24"
+    android:minWidth="300dp"
+    android:orientation="vertical">
+
+    <ImageView
+        android:id="@+id/ivNoticeDlgLogo"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="24dp"
+        android:src="@drawable/ic_error" />
+
+    <TextView
+        android:id="@+id/tvNoticeDlgTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="18dp"
+        android:gravity="center_horizontal"
+        android:lineSpacingExtra="10sp"
+        android:text="@string/title_noti"
+        android:textColor="@color/color_001222"
+        android:textSize="18sp"
+        android:textStyle="normal"
+        />
+
+    <TextView
+        android:id="@+id/tvNoticeDlgContent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginTop="20dp"
+        android:gravity="center_horizontal"
+        android:lineSpacingExtra="6sp"
+        android:textColor="@color/color_001222"
+        android:textSize="16sp"
+        tools:text="Quý khách vui lòng bật chế độ NFC trong quá trình thực hiện đăng ký tài khoản" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginTop="27dp"
+        android:layout_marginBottom="16dp">
+
+        <Button
+            android:id="@+id/btnNoticeDlgLeft"
+            style="@style/ButtonDawnPink"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginEnd="6dp"
+            android:layout_weight="1"
+            android:text="@string/label_close"
+            android:visibility="gone"
+            tools:visibility="visible" />
+
+        <Button
+            android:id="@+id/btnNoticeDlgRight"
+            style="@style/ButtonRed"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginStart="6dp"
+            android:layout_weight="1"
+            android:text="@string/title_continues" />
+    </LinearLayout>
+</LinearLayout>

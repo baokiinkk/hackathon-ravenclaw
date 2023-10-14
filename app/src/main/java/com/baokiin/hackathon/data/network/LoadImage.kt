@@ -22,41 +22,18 @@ object LoadImage {
 
     fun ImageView.load(url: String) {
         tag = url
-        var bitmap: Bitmap? = cache.get(url)
-        if (bitmap == null) {
-            CoroutineScope(Dispatchers.Main).launch {
-                try {
-                    withContext(Dispatchers.IO) {
-                        val urlConnection = URL(url).openConnection() as HttpURLConnection
-                        val bytes = urlConnection.inputStream.readBytes()
-                        urlConnection.disconnect()
-                        bitmap =
-                            BitmapFactory.decodeByteArray(
-                                bytes,
-                                0,
-                                bytes.size,
-                                BitmapFactory.Options()
-                            )
-                        cache.put(url, bitmap)
-                    }
-                    if (tag == url)
-                        setImageBitmap(bitmap)
-
-                } catch (e: Exception) {
-                    setImageResource(R.drawable.ic_launcher_background)
-                }
-            }
-        } else {
+        val bitmap: Bitmap? = cache.get(url)
+        bitmap?.let {
             setImageBitmap(bitmap)
         }
     }
 
     fun clearDiskCache() {
-        cache.clearFileExprie()
+        cache.clear()
     }
 }
 
-class DoubleCache() : ImageCache {
+class DoubleCache : ImageCache {
 
     private val memCache = MemoryCache()
     private val diskCache = DiskCache()
@@ -67,15 +44,10 @@ class DoubleCache() : ImageCache {
 
     override fun put(url: String, bitmap: Bitmap?) {
         memCache.put(url, bitmap)
-        diskCache.put(url, bitmap)
     }
 
     override fun clear() {
         memCache.clear()
-    }
-
-    override fun clearFileExprie() {
-        diskCache.clearFileExprie()
     }
 }
 
@@ -118,49 +90,15 @@ class MemoryCache : ImageCache {
 }
 
 class DiskCache() : ImageCache {
-    companion object {
-        private const val DELTA_TIME = 60 * 60 * 2 * 1000
-    }
-
-    override fun get(url: String): Bitmap? {
-        val file = File(MyApplication.getApplication().cacheDir, url.md5())
-        return if (file.exists()) {
-            if (file.lastModified() + DELTA_TIME < System.currentTimeMillis()) {
-                file.delete()
-                null
-            } else {
-                file.readBytes().toBitmap()
-            }
-        } else {
-            null
-        }
+    override fun get(url: String): Bitmap {
+       return BitmapFactory.decodeFile(url)
+//        val file = File(url)
+//        return file.readBytes().toBitmap()
     }
 
     override fun clear() {}
 
     override fun put(url: String, bitmap: Bitmap?) {
-        bitmap?.let {
-            try {
-                val file = File(MyApplication.getApplication().cacheDir, url.md5())
-                if (!file.exists())
-                    file.parentFile?.mkdir()
-                file.writeBytes(it.getBytes())
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
-    }
-
-    override fun clearFileExprie() {
-        MyApplication.getApplication().cacheDir.listFiles()?.forEach {
-            clearFile(it)
-        }
-    }
-
-    private fun clearFile(file: File) {
-        if (file.exists() && (file.lastModified() + DELTA_TIME < System.currentTimeMillis())) {
-            file.delete()
-        }
     }
 
     private fun Bitmap.getBytes(): ByteArray {
@@ -169,19 +107,21 @@ class DiskCache() : ImageCache {
         return bos.toByteArray()
     }
 
-    private fun ByteArray.toBitmap(): Bitmap {
-        return BitmapFactory.decodeByteArray(this, 0, size)
-    }
 
-    private fun String.md5(): String {
-        val md = MessageDigest.getInstance("MD5")
-        return BigInteger(1, md.digest(toByteArray())).toString(16).padStart(32, '0')
-    }
+}
+
+
+fun ByteArray.toBitmap(): Bitmap {
+    return BitmapFactory.decodeByteArray(this, 0, size)
+}
+
+fun String.md5(): String {
+    val md = MessageDigest.getInstance("MD5")
+    return BigInteger(1, md.digest(toByteArray())).toString(16).padStart(32, '0')
 }
 
 interface ImageCache {
     fun put(url: String, bitmap: Bitmap?)
     fun get(url: String): Bitmap?
     fun clear()
-    fun clearFileExprie() {}
 }

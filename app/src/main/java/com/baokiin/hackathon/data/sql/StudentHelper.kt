@@ -4,6 +4,7 @@ import android.content.ContentValues
 import android.content.Context
 import android.provider.BaseColumns
 import androidx.core.database.getStringOrNull
+import java.io.File
 
 class StudentDbHelper(context: Context) : SqlDbHelper(
     context,
@@ -124,6 +125,13 @@ class StudentDbHelper(context: Context) : SqlDbHelper(
         )
         if (cursor.moveToFirst()) {
             do {
+                var index = 0
+//                File("s","").listFiles().forEach {
+//                    insert(it.name)
+//                    index++
+//                    if(index == page)
+//                        callbackUI
+//                }
                 val id = cursor.getString(cursor.getColumnIndexOrThrow(BaseColumns._ID))
                 val name =
                     cursor.getString(cursor.getColumnIndexOrThrow(STUDENT_TABLE.COLUMN_FULL_NAME))

@@ -13,6 +13,12 @@ import androidx.lifecycle.LifecycleOwner
 class VnpayLaunch(val context: FragmentActivity, val lifeCycle: Lifecycle) : DefaultLifecycleObserver {
     private var resultLauncher: OpenResultLauncher? = null
     private var resultPermissionLauncher: OpenPermissionResultLauncher? = null
+
+
+    override fun onCreate(owner: LifecycleOwner) {
+        super.onCreate(owner)
+
+    }
     override fun onDestroy(owner: LifecycleOwner) {
         unregister()
         super.onDestroy(owner)
@@ -22,13 +28,9 @@ class VnpayLaunch(val context: FragmentActivity, val lifeCycle: Lifecycle) : Def
         this.lifeCycle.addObserver(this)
         resultLauncher = OpenResultLauncher()
         resultLauncher?.register(context)
+        resultPermissionLauncher = OpenPermissionResultLauncher()
+        resultPermissionLauncher?.register(context)
     }
-
-    fun registerFragment(context: Fragment) {
-        resultLauncher = OpenResultLauncher()
-        resultLauncher?.register(context)
-    }
-
 
     fun launch(intent: Intent? = null, callback: ((ActivityResult) -> Unit)) {
         resultLauncher?.launch(
@@ -38,18 +40,11 @@ class VnpayLaunch(val context: FragmentActivity, val lifeCycle: Lifecycle) : Def
         }
     }
 
-    fun registerPermission() {
-        this.lifeCycle.addObserver(this)
-        resultPermissionLauncher = OpenPermissionResultLauncher()
-        resultPermissionLauncher?.register(context)
-    }
-
     fun launchPermission(
         arrayPermission: Array<String>,
         callback: PermissionsCallBack
-
     ) {
-        context?.let { activity ->
+        context.let { activity ->
             resultPermissionLauncher?.launch(arrayPermission) { permissionResultMap ->
                 var countSuccess = 0
                 val arrayPermissionFail = arrayListOf<String>()
@@ -82,7 +77,7 @@ class VnpayLaunch(val context: FragmentActivity, val lifeCycle: Lifecycle) : Def
     private fun unregister() {
         resultLauncher?.unRegister()
         resultPermissionLauncher?.unRegister()
-        this.lifeCycle?.removeObserver(this)
+        this.lifeCycle.removeObserver(this)
     }
 
     private fun shouldShowRequestPermissionsRationale(

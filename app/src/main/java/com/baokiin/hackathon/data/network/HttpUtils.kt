@@ -2,7 +2,6 @@ package com.baokiin.hackathon.data.network
 
 import android.os.Build
 import android.util.Log
-import com.baokiin.hackathon.data.InfoResponse
 import com.baokiin.hackathon.extension.fromJson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

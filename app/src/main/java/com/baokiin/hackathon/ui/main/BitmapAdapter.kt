@@ -6,12 +6,11 @@ import com.baokiin.hackathon.R
 import com.baokiin.hackathon.bases.adapter.BaseRclvAdapter
 import com.baokiin.hackathon.bases.adapter.BaseRclvHolder
 import com.baokiin.hackathon.bases.adapter.BaseVHData
-import com.baokiin.hackathon.data.Info
-import com.baokiin.hackathon.data.network.LoadImage
+import com.baokiin.hackathon.data.BitmapModel
 import com.baokiin.hackathon.data.network.LoadImage.load
 import com.baokiin.hackathon.databinding.ItemInfoBinding
 
-class InfoAdapter: BaseRclvAdapter<InfoAdapter.InfoVHData>() {
+class BitmapAdapter : BaseRclvAdapter<BitmapAdapter.BitmapVHData>() {
 
     override fun getLayoutResource(viewType: Int): Int {
         return R.layout.item_info
@@ -24,22 +23,28 @@ class InfoAdapter: BaseRclvAdapter<InfoAdapter.InfoVHData>() {
         return InfoViewHolder(itemView as ItemInfoBinding)
     }
 
-    fun updateList(list: List<Info>?) {
+    fun updateList(list: List<BitmapModel>?) {
         list?.let {
             val tmp = it.map { item ->
-                InfoVHData(item)
+                BitmapVHData(item)
             }
             reset(tmp)
         }
     }
 
-    override fun onViewDetachedFromWindow(holder: BaseRclvHolder<ViewDataBinding, InfoVHData>) {
+    fun addAllData(list: List<BitmapModel>) {
+        dataSet.addAll(list.map { BitmapVHData(it) })
+        notifyItemRangeInserted(dataSet.size, list.size)
+    }
+
+    override fun onViewDetachedFromWindow(holder: BaseRclvHolder<ViewDataBinding, BitmapVHData>) {
         super.onViewDetachedFromWindow(holder)
         holder.clearData()
     }
+
     inner class InfoViewHolder(
         val binding: ItemInfoBinding
-    ) : BaseRclvHolder<ItemInfoBinding, InfoVHData>(binding) {
+    ) : BaseRclvHolder<ItemInfoBinding, BitmapVHData>(binding) {
 
         init {
             binding.apply {
@@ -47,11 +52,11 @@ class InfoAdapter: BaseRclvAdapter<InfoAdapter.InfoVHData>() {
         }
 
         override fun onBind(
-            vhData: InfoVHData
+            vhData: BitmapVHData
         ) {
             binding.apply {
                 tvInfoItmName.text = vhData.getName()
-                imvInfoItmAvatar.load(vhData.getAvatar())
+                imvInfoItmAvatar.load(vhData.getPath())
             }
         }
 
@@ -61,9 +66,9 @@ class InfoAdapter: BaseRclvAdapter<InfoAdapter.InfoVHData>() {
         }
     }
 
-    class InfoVHData(realData: Info) : BaseVHData<Info>(realData) {
-        var isEye: Boolean = false
-        fun getAvatar() = realData.avatar
-        fun getName() = realData.login
+    class BitmapVHData(realData: BitmapModel) : BaseVHData<BitmapModel>(realData) {
+        fun getPath() = realData.path
+        fun getName() = realData.name
+        fun getSize() = realData.size
     }
 }
