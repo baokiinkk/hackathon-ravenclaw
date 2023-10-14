@@ -103,6 +103,7 @@ class BitmapAdapter : BaseRclvAdapter<BitmapAdapter.BitmapVHData>() {
             cacheFirst.pop().also {
                 dataSet.addAll(0, it)
                 notifyItemRangeInserted(0, it.size)
+                // Call add to cacheFirst
             }
         }
         println("${cacheFirst.size} insertBelow cacheFirst: $cacheFirst")
@@ -112,6 +113,9 @@ class BitmapAdapter : BaseRclvAdapter<BitmapAdapter.BitmapVHData>() {
     fun doCacheLast() {
         dataSet.takeLast(PAGE_LIMIT).also {
             if (it.isNotEmpty()) {
+                if (cacheLast.size == MAX_CACHE_PAGE_SIZE) {
+                    cacheLast.removeFirst()
+                }
                 cacheLast.push(it)
             }
         }
@@ -123,6 +127,9 @@ class BitmapAdapter : BaseRclvAdapter<BitmapAdapter.BitmapVHData>() {
     }
 
     fun doCacheFirst() {
+        if (cacheFirst.size == MAX_CACHE_PAGE_SIZE) {
+            cacheFirst.pop()
+        }
         cacheFirst.push(dataSet.take(PAGE_LIMIT))
         for (i in 0 until PAGE_LIMIT) {
             dataSet.removeFirst()
