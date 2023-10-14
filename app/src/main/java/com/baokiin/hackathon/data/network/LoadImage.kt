@@ -15,7 +15,7 @@ object LoadImage {
         tag = url
         val bitmap: Bitmap? = cache.get(url)
         bitmap?.let {
-            setImageBitmap(getScaledBitmap(bitmap,100,100))
+            setImageBitmap(getScaledBitmap(bitmap,60,60))
         }
     }
 

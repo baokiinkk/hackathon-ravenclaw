@@ -1,7 +1,6 @@
 package com.baokiin.hackathon.ui.main
 
 
-import android.graphics.Bitmap
 import androidx.databinding.ViewDataBinding
 import com.baokiin.hackathon.R
 import com.baokiin.hackathon.bases.adapter.BaseRclvAdapter
@@ -10,18 +9,21 @@ import com.baokiin.hackathon.bases.adapter.BaseVHData
 import com.baokiin.hackathon.data.BitmapModel
 import com.baokiin.hackathon.data.network.LoadImage.load
 import com.baokiin.hackathon.databinding.ItemInfoBinding
-import java.util.Stack
+import java.util.*
 
 class BitmapAdapter : BaseRclvAdapter<BitmapAdapter.BitmapVHData>() {
     companion object {
         const val PAGE_LIMIT = 10
         const val MAX_CACHE_PAGE_SIZE = 3
+        const val PAYLOAD_COUNTER = 123
     }
+
+    var counter = 0
     var handleOther: (() -> Unit)? = null
     val cacheFirst = Stack<List<BitmapVHData>>()
     val cacheLast = Stack<List<BitmapVHData>>()
-
     var isLoading = false
+    var clickItem: ((Int) -> Unit)? = null
 
     override fun getLayoutResource(viewType: Int): Int {
         return R.layout.item_info
@@ -34,6 +36,15 @@ class BitmapAdapter : BaseRclvAdapter<BitmapAdapter.BitmapVHData>() {
         return InfoViewHolder(itemView as ItemInfoBinding)
     }
 
+    override fun onViewDetachedFromWindow(holder: BaseRclvHolder<ViewDataBinding, BitmapVHData>) {
+        super.onViewDetachedFromWindow(holder)
+        holder.clearData()
+    }
+
+    fun setItemClick(action: (Int) -> Unit) {
+        clickItem = action
+    }
+
     fun updateList(list: List<BitmapModel>?) {
         list?.let {
             val tmp = it.map { item ->
@@ -43,14 +54,19 @@ class BitmapAdapter : BaseRclvAdapter<BitmapAdapter.BitmapVHData>() {
         }
     }
 
+    fun getItem(position: Int) = getItemDataAtPosition(position)
     fun addAllData(list: List<BitmapModel>) {
         dataSet.addAll(list.map { BitmapVHData(it) })
         notifyItemRangeInserted(dataSet.size, list.size)
     }
 
-    override fun onViewDetachedFromWindow(holder: BaseRclvHolder<ViewDataBinding, BitmapVHData>) {
-        super.onViewDetachedFromWindow(holder)
-        holder.clearData()
+    fun reduceChecked() {
+        dataSet.forEachIndexed { index, item ->
+            if (counter != 0) {
+                item.counter--
+                notifyItemChanged(index, PAYLOAD_COUNTER)
+            }
+        }
     }
 
     inner class InfoViewHolder(
@@ -59,6 +75,19 @@ class BitmapAdapter : BaseRclvAdapter<BitmapAdapter.BitmapVHData>() {
 
         init {
             binding.apply {
+                itemView.setOnClickListener {
+                    clickItem?.invoke(adapterPosition)
+                    if (getItem(adapterPosition).counter == 0) {
+                        counter++
+                        getItem(adapterPosition).counter = counter
+                        cbInfoItmCheck.text = counter.toString()
+                        cbInfoItmCheck.isChecked = true
+                    } else {
+                        counter--
+                        reduceChecked()
+                        cbInfoItmCheck.isChecked = false
+                    }
+                }
             }
         }
 
@@ -67,6 +96,17 @@ class BitmapAdapter : BaseRclvAdapter<BitmapAdapter.BitmapVHData>() {
         ) {
             binding.apply {
                 imvInfoItmAvatar.load(vhData.getPath())
+            }
+        }
+
+        override fun onBind(vhData: BitmapVHData, payloads: List<Any>) {
+            super.onBind(vhData, payloads)
+            if (payloads.isNotEmpty()) {
+                when (payloads[0]) {
+                    PAYLOAD_COUNTER -> {
+                        binding.cbInfoItmCheck.text = getItem(adapterPosition).counter.toString()
+                    }
+                }
             }
         }
 
@@ -137,8 +177,7 @@ class BitmapAdapter : BaseRclvAdapter<BitmapAdapter.BitmapVHData>() {
     }
 
     class BitmapVHData(realData: BitmapModel) : BaseVHData<BitmapModel>(realData) {
+        var counter: Int = 0
         fun getPath() = realData.path
-        fun getName() = realData.name
-        fun getSize() = realData.size
-    }
+        fun getSize() = realData.size }
 }
