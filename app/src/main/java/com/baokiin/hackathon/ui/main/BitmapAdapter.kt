@@ -23,7 +23,7 @@ class BitmapAdapter : BaseRclvAdapter<BitmapAdapter.BitmapVHData>() {
     val cacheFirst = Stack<List<BitmapVHData>>()
     val cacheLast = Stack<List<BitmapVHData>>()
     var isLoading = false
-    var clickItem: ((Int) -> Unit)? = null
+    var clickItem: ((List<BitmapModel>) -> Unit)? = null
 
     override fun getLayoutResource(viewType: Int): Int {
         return R.layout.item_info
@@ -41,7 +41,7 @@ class BitmapAdapter : BaseRclvAdapter<BitmapAdapter.BitmapVHData>() {
         holder.clearData()
     }
 
-    fun setItemClick(action: (Int) -> Unit) {
+    fun setItemClick(action: (List<BitmapModel>) -> Unit) {
         clickItem = action
     }
 
@@ -60,13 +60,19 @@ class BitmapAdapter : BaseRclvAdapter<BitmapAdapter.BitmapVHData>() {
         notifyItemRangeInserted(dataSet.size, list.size)
     }
 
-    fun reduceChecked(currentCounter:Int) {
+    fun reduceChecked(currentCounter: Int) {
         dataSet.forEachIndexed { index, item ->
             if (item.counter != 0 && item.counter > currentCounter) {
                 item.counter--
                 notifyItemChanged(index, PAYLOAD_COUNTER)
             }
         }
+    }
+
+    fun getItemChecked() = dataSet.filter {
+        it.counter != 0
+    }.map {
+        it.realData
     }
 
     inner class InfoViewHolder(
@@ -76,7 +82,7 @@ class BitmapAdapter : BaseRclvAdapter<BitmapAdapter.BitmapVHData>() {
         init {
             binding.apply {
                 itemView.setOnClickListener {
-                    clickItem?.invoke(adapterPosition)
+                    clickItem?.invoke(getItemChecked())
                     if (getItem(adapterPosition).counter == 0) {
                         counter++
                         getItem(adapterPosition).counter = counter

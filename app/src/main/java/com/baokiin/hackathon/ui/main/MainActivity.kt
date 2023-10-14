@@ -1,5 +1,7 @@
 package com.baokiin.hackathon.ui.main
 
+import android.content.Intent
+import android.view.View
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import com.baokiin.hackathon.R
@@ -11,6 +13,7 @@ import com.baokiin.hackathon.databinding.ActivityMainBinding
 import com.baokiin.hackathon.extension.RecyclerViewExt.getFirstVisibleItemPosition
 import com.baokiin.hackathon.extension.RecyclerViewExt.getLastVisibleItemPosition
 import com.baokiin.hackathon.extension.launch.VnpayLaunch
+import com.baokiin.hackathon.extension.toJson
 import com.baokiin.hackathon.utils.FileUtils
 import com.baokiin.hackathon.utils.PermissionUtils
 import kotlinx.coroutines.Dispatchers
@@ -26,6 +29,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
     private val bitmapDbHelper by lazy {
         BitmapDbHelper(this)
     }
+    var listNext: List<BitmapModel>? = null
     var page = 2
 
     override fun onInitView() {
@@ -34,13 +38,26 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         loadImageFromCache()
         initLoadMoreTwoWay()
     }
+
     override fun onDestroy() {
         LoadImage.clearDiskCache()
         super.onDestroy()
     }
+
+    override fun listenerView() {
+        super.listenerView()
+        binding.next.setOnClickListener {
+            val intent = Intent(this,BitmapDetailActivity::class.java)
+            intent.putExtra(BitmapDetailActivity.EXTRA_LIST_MODEL,listNext?.toJson())
+        }
+    }
     private fun setupRecyclerView() {
         binding.rcvMainInfo.apply {
             adapter = adapterBitmap
+        }
+        adapterBitmap.setItemClick {
+            listNext = it
+            binding.next.visibility = if (it.isEmpty()) View.GONE else View.VISIBLE
         }
         adapterBitmap.handleOther = {
             lifecycleScope.launch(Dispatchers.IO) {
@@ -79,7 +96,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
             paths.forEachIndexed { index, bitmapModel ->
                 if (index < BitmapAdapter.PAGE_LIMIT + 1) {
                     bitmapTmp.add(bitmapModel)
-                }else{
+                } else {
                     bitmapDbHelper.insertBitmap(bitmapModel)
                 }
                 if (index == BitmapAdapter.PAGE_LIMIT) {

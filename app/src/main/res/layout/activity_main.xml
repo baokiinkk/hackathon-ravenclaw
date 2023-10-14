@@ -22,6 +22,7 @@
             app:spanCount="3"
             tools:listitem="@layout/item_info" />
         <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/next"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_margin="20dp"
