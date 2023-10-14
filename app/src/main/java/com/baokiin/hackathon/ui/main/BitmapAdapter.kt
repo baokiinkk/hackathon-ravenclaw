@@ -126,8 +126,10 @@ class BitmapAdapter : BaseRclvAdapter<BitmapAdapter.BitmapVHData>() {
         val preSize = dataSet.size
         if (cacheLast.isNotEmpty()) {
             cacheLast.pop().also {
-                dataSet.addAll(it)
-                notifyItemRangeInserted(preSize, it.size)
+                it.forEach { itemData ->
+                    dataSet.add(itemData)
+                    notifyItemInserted(itemCount)
+                }
             }
         } else {
             if (data == null) {
@@ -146,8 +148,10 @@ class BitmapAdapter : BaseRclvAdapter<BitmapAdapter.BitmapVHData>() {
     fun insertAbove() {
         if (cacheFirst.isNotEmpty()) {
             cacheFirst.pop().also {
-                dataSet.addAll(0, it)
-                notifyItemRangeInserted(0, it.size)
+                it.forEach { itemData ->
+                    dataSet.add(0, itemData)
+                    notifyItemInserted(0)
+                }
                 // Call add to cacheFirst
             }
         }
@@ -158,9 +162,6 @@ class BitmapAdapter : BaseRclvAdapter<BitmapAdapter.BitmapVHData>() {
     fun doCacheLast() {
         dataSet.takeLast(PAGE_LIMIT).also {
             if (it.isNotEmpty()) {
-                if (cacheLast.size == MAX_CACHE_PAGE_SIZE) {
-                    cacheLast.removeFirst()
-                }
                 cacheLast.push(it)
             }
         }
@@ -172,9 +173,6 @@ class BitmapAdapter : BaseRclvAdapter<BitmapAdapter.BitmapVHData>() {
     }
 
     fun doCacheFirst() {
-        if (cacheFirst.size == MAX_CACHE_PAGE_SIZE) {
-            cacheFirst.pop()
-        }
         cacheFirst.push(dataSet.take(PAGE_LIMIT))
         for (i in 0 until PAGE_LIMIT) {
             dataSet.removeFirst()
