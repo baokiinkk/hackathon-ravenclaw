@@ -6,12 +6,16 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.baokiin.hackathon.R
 import com.baokiin.hackathon.bases.activity.BaseActivity
 import com.baokiin.hackathon.data.BitmapModel
 import com.baokiin.hackathon.data.network.LoadImage
 import com.baokiin.hackathon.data.sql.BitmapDbHelper
 import com.baokiin.hackathon.databinding.ActivityMainBinding
+import com.baokiin.hackathon.extension.RecyclerViewExt.getFirstVisibleItemPosition
+import com.baokiin.hackathon.extension.RecyclerViewExt.getLastVisibleItemPosition
 import com.baokiin.hackathon.extension.RecyclerViewExt.loadMore
 import com.baokiin.hackathon.extension.launch.VnpayLaunch
 import com.baokiin.hackathon.utils.FileUtils
@@ -37,15 +41,9 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         loadImageFromCache()
     }
 
-    var page = 2
     private fun setupRecyclerView() {
         binding.rcvMainInfo.apply {
             adapter = adapterBitmap
-            loadMore {
-                val data =  bitmapDbHelper.getBitmapsByPage(page,10)
-                adapterBitmap.addAllData(data)
-                page++
-            }
         }
     }
 
@@ -83,6 +81,39 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
                     }
                 }
             }
+        }
+    }
+
+    private fun initLoadMoreTwoWay() {
+        binding.rcvMainInfo.apply {
+            addOnScrollListener(object: RecyclerView.OnScrollListener() {
+                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                    super.onScrolled(recyclerView, dx, dy)
+                    val totalItems = layoutManager?.itemCount ?: 0
+                    val childCount = layoutManager?.childCount ?: 0
+                    val first = getFirstVisibleItemPosition()
+                    val last = getLastVisibleItemPosition()
+                    val canScrollDown = dy > 0
+                    val canScrollUp = dy < 0
+                    if (!adapterBitmap.isLoading) {
+                        adapterBitmap.isLoading = true
+                        if (canScrollDown && last + childCount > totalItems) {
+                            // neu index cua trang hien tai > 1 thi cache n item dau tien mList
+                            if (first / BitmapAdapter.PAGE_LIMIT > 1) {
+                                adapterBitmap.doCacheFirst()
+                            }
+                            adapterBitmap.insertBelow()
+                        } else if (canScrollUp && first - childCount < 0) {
+                            if ((totalItems / BitmapAdapter.PAGE_LIMIT) - (last / BitmapAdapter.PAGE_LIMIT) > 1) {
+                                adapterBitmap.doCacheLast()
+                            }
+                            adapterBitmap.insertAbove()
+                        }
+                        println("Adapter size: ${adapterBitmap.itemCount} first: $first last: $last")
+                        adapterBitmap.isLoading = false
+                    }
+                }
+            })
         }
     }
 
