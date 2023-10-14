@@ -14,6 +14,7 @@ import com.baokiin.hackathon.extension.RecyclerViewExt.getFirstVisibleItemPositi
 import com.baokiin.hackathon.extension.RecyclerViewExt.getLastVisibleItemPosition
 import com.baokiin.hackathon.extension.launch.VnpayLaunch
 import com.baokiin.hackathon.extension.toJson
+import com.baokiin.hackathon.ui.main.detail.BitmapDetailActivity
 import com.baokiin.hackathon.utils.FileUtils
 import com.baokiin.hackathon.utils.PermissionUtils
 import kotlinx.coroutines.Dispatchers
@@ -49,6 +50,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         binding.next.setOnClickListener {
             val intent = Intent(this,BitmapDetailActivity::class.java)
             intent.putExtra(BitmapDetailActivity.EXTRA_LIST_MODEL,listNext?.toJson())
+            startActivity(intent)
         }
     }
     private fun setupRecyclerView() {
