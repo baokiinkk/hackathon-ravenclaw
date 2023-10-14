@@ -1,6 +1,7 @@
 package com.baokiin.hackathon.ui.main
 
 
+import android.view.View
 import androidx.databinding.ViewDataBinding
 import com.baokiin.hackathon.R
 import com.baokiin.hackathon.bases.adapter.BaseRclvAdapter
@@ -13,7 +14,7 @@ import java.util.*
 
 class BitmapAdapter : BaseRclvAdapter<BitmapAdapter.BitmapVHData>() {
     companion object {
-        const val PAGE_LIMIT = 50
+        const val PAGE_LIMIT = 48
         const val MAX_CACHE_PAGE_SIZE = 50
         const val PAYLOAD_COUNTER = 123
     }
@@ -23,7 +24,8 @@ class BitmapAdapter : BaseRclvAdapter<BitmapAdapter.BitmapVHData>() {
     val cacheFirst = Stack<List<BitmapVHData>>()
     val cacheLast = Stack<List<BitmapVHData>>()
     var isLoading = false
-    var clickItem: ((List<BitmapModel>) -> Unit)? = null
+    var clickCheckedItem: ((List<BitmapModel>) -> Unit)? = null
+    var clickItem: ((View,BitmapModel) -> Unit)? = null
 
     override fun getLayoutResource(viewType: Int): Int {
         return R.layout.item_info
@@ -41,7 +43,15 @@ class BitmapAdapter : BaseRclvAdapter<BitmapAdapter.BitmapVHData>() {
         holder.clearData()
     }
 
-    fun setItemClick(action: (List<BitmapModel>) -> Unit) {
+    override fun onViewRecycled(holder: BaseRclvHolder<ViewDataBinding, BitmapVHData>) {
+        super.onViewRecycled(holder)
+        holder.clearData()
+    }
+
+    fun setItemCheckedClick(action: (List<BitmapModel>) -> Unit) {
+        clickCheckedItem = action
+    }
+    fun setItemClick(action: (View,BitmapModel) -> Unit){
         clickItem = action
     }
 
@@ -82,7 +92,9 @@ class BitmapAdapter : BaseRclvAdapter<BitmapAdapter.BitmapVHData>() {
         init {
             binding.apply {
                 itemView.setOnClickListener {
-                    clickItem?.invoke(getItemChecked())
+                    clickItem?.invoke(it,getItem(adapterPosition).realData)
+                }
+                llInfoItmCheck.setOnClickListener {
                     if (getItem(adapterPosition).counter == 0) {
                         counter++
                         getItem(adapterPosition).counter = counter
@@ -91,10 +103,11 @@ class BitmapAdapter : BaseRclvAdapter<BitmapAdapter.BitmapVHData>() {
                     } else {
                         counter--
                         reduceChecked(getItem(adapterPosition).counter)
-                        cbInfoItmCheck.setText("")
+                        cbInfoItmCheck.text = ""
                         getItem(adapterPosition).counter = 0
                         cbInfoItmCheck.isChecked = false
                     }
+                    clickCheckedItem?.invoke(getItemChecked())
                 }
             }
         }
@@ -103,12 +116,21 @@ class BitmapAdapter : BaseRclvAdapter<BitmapAdapter.BitmapVHData>() {
             vhData: BitmapVHData
         ) {
             binding.apply {
+                cbInfoItmCheck.isChecked = vhData.counter != 0
+                cbInfoItmCheck.text = if(vhData.counter != 0) vhData.counter.toString() else ""
+                imvInfoItmAvatar.transitionName = vhData.getPath()
                 imvInfoItmAvatar.load(vhData.getPath())
             }
         }
 
         override fun onBind(vhData: BitmapVHData, payloads: List<Any>) {
             super.onBind(vhData, payloads)
+            binding.apply {
+                cbInfoItmCheck.isChecked = vhData.counter != 0
+                cbInfoItmCheck.text = if(vhData.counter != 0) vhData.counter.toString() else ""
+                imvInfoItmAvatar.transitionName = vhData.getPath()
+                imvInfoItmAvatar.load(vhData.getPath())
+            }
             if (payloads.isNotEmpty()) {
                 when (payloads[0]) {
                     PAYLOAD_COUNTER -> {
@@ -124,6 +146,7 @@ class BitmapAdapter : BaseRclvAdapter<BitmapAdapter.BitmapVHData>() {
 
         override fun clearData() {
             super.clearData()
+            binding.cbInfoItmCheck.isChecked = false
             binding.imvInfoItmAvatar.setBackgroundResource(R.color.black)
         }
     }

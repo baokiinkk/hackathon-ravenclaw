@@ -2,6 +2,7 @@ package com.baokiin.hackathon.ui.main
 
 import android.content.Intent
 import android.view.View
+import androidx.core.app.ActivityOptionsCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import com.baokiin.hackathon.R
@@ -49,15 +50,29 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         binding.next.setOnClickListener {
             val intent = Intent(this,BitmapDetailActivity::class.java)
             intent.putExtra(BitmapDetailActivity.EXTRA_LIST_MODEL,listNext?.toJson())
+            startActivity(intent)
         }
     }
     private fun setupRecyclerView() {
         binding.rcvMainInfo.apply {
             adapter = adapterBitmap
         }
-        adapterBitmap.setItemClick {
+        adapterBitmap.setItemCheckedClick {
             listNext = it
+            binding.next.text = it.size.toString()
             binding.next.visibility = if (it.isEmpty()) View.GONE else View.VISIBLE
+        }
+        adapterBitmap.setItemClick {view,data->
+            val optionsCompat: ActivityOptionsCompat =
+                ActivityOptionsCompat.makeSceneTransitionAnimation(
+                    this,
+                    view,
+                    data.path
+                )
+            listNext = mutableListOf(data)
+            val intent = Intent(this,BitmapDetailActivity::class.java)
+            intent.putExtra(BitmapDetailActivity.EXTRA_LIST_MODEL,listNext?.toJson())
+            startActivity(intent,optionsCompat.toBundle())
         }
         adapterBitmap.handleOther = {
             lifecycleScope.launch(Dispatchers.IO) {
@@ -123,12 +138,12 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
                         adapterBitmap.isLoading = true
                         if (canScrollDown && last + childCount + BitmapAdapter.PAGE_LIMIT > totalItems) {
                             // neu index cua trang hien tai > 1 thi cache n item dau tien mList
-                            if (first / BitmapAdapter.PAGE_LIMIT > 1) {
+                            if (first / BitmapAdapter.PAGE_LIMIT > 5) {
                                 adapterBitmap.doCacheFirst()
                             }
                             adapterBitmap.insertBelow()
                         } else if (canScrollUp && first - childCount - BitmapAdapter.PAGE_LIMIT < 0) {
-                            if ((totalItems / BitmapAdapter.PAGE_LIMIT) - (last / BitmapAdapter.PAGE_LIMIT) > 1) {
+                            if ((totalItems / BitmapAdapter.PAGE_LIMIT) - (last / BitmapAdapter.PAGE_LIMIT) > 5) {
                                 adapterBitmap.doCacheLast()
                             }
                             adapterBitmap.insertAbove()

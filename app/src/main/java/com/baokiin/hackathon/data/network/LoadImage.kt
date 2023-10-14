@@ -22,7 +22,7 @@ object LoadImage {
         CoroutineScope(Dispatchers.IO).launch {
             var bitmap: Bitmap? = cache.get(url)
             if (bitmap == null) {
-                bitmap = BitmapFactory.decodeFile(url)
+                bitmap = getFromPath(url)
                 cache.put(url,bitmap)
             }
             withContext(Dispatchers.Main) {
@@ -30,16 +30,14 @@ object LoadImage {
             }
         }
     }
-    fun cacheImage(url: String){
-        CoroutineScope(Dispatchers.IO).launch {
-            var bitmap: Bitmap? = cache.get(url)
-            if (bitmap == null) {
-                bitmap = BitmapFactory.decodeFile(url)
-                cache.put(url, bitmap)
-            }
+    fun getFromPath(url: String):Bitmap?{
+        val file = File(url)
+        return if (file.exists()) {
+            file.readBytes().toBitmap()
+        } else {
+            null
         }
     }
-
     fun clearDiskCache() {
         cache.clear()
     }
