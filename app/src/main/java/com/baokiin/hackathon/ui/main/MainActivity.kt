@@ -1,6 +1,7 @@
 package com.baokiin.hackathon.ui.main
 
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.baokiin.hackathon.R
 import com.baokiin.hackathon.bases.activity.BaseActivity
@@ -38,7 +39,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
     private fun setupRecyclerView() {
         binding.rcvMainInfo.apply {
             adapter = adapterBitmap
-//            layoutManager = GridLayoutManager(this@MainActivity,3)
+            layoutManager = GridLayoutManager(this@MainActivity,3)
             loadMore {
                 lifecycleScope.launch(Dispatchers.IO) {
                     val data = bitmapDbHelper.getBitmapsByPage(page,20)
