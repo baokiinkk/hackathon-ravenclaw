@@ -26,7 +26,6 @@ class BitmapDbHelper(context: Context) : SqlDbHelper(
     fun insertBitmap(data: BitmapModel) {
         val db = writableDatabase
         val values = ContentValues().apply {
-            put(BITMAP_TABLE.COLUMN_ID, data.id)
             put(BITMAP_TABLE.COLUMN_NAME, data.name)
             put(BITMAP_TABLE.COLUMN_PATH, data.path)
             put(BITMAP_TABLE.COLUMN_SIZE, data.size)

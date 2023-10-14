@@ -4,23 +4,37 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.LruCache
 import android.widget.ImageView
+import com.baokiin.hackathon.ui.main.AppExecutors
 import java.io.ByteArrayOutputStream
 import java.math.BigInteger
 import java.security.MessageDigest
 
+
 object LoadImage {
-    val cache: DoubleCache = DoubleCache()
+//    val cache: DoubleCache = DoubleCache()
+
+    private val memCache = MemoryCache()
+    private val diskCache = DiskCache()
 
     fun ImageView.load(url: String) {
         tag = url
-        val bitmap: Bitmap? = cache.get(url)
-        bitmap?.let {
-            setImageBitmap(getScaledBitmap(bitmap,60,60))
+        AppExecutors.getInstance().diskIO().execute {
+            var bitmap: Bitmap? = memCache.get(url)
+            if (bitmap == null) {
+                bitmap = diskCache.get(url)
+                bitmap = getScaledBitmap(bitmap,100,100)
+                memCache.put(url,bitmap)
+            }
+            AppExecutors.getInstance().mainThread().execute {
+                setImageBitmap(bitmap)
+            }
         }
+
     }
 
     fun clearDiskCache() {
-        cache.clear()
+        memCache.clear()
+        diskCache.clear()
     }
 }
 

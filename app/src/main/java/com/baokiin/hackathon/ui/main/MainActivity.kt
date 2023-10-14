@@ -33,7 +33,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
     private val bitmapDbHelper by lazy {
         BitmapDbHelper(this)
     }
-    private var page = 1
+    var page = 2
 
     override fun onInitView() {
         super.onInitView()
@@ -45,14 +45,14 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
     private fun setupRecyclerView() {
         binding.rcvMainInfo.apply {
             adapter = adapterBitmap
-        }
-        adapterBitmap.handleOther = {
-            lifecycleScope.launch(Dispatchers.IO) {
-                val data = bitmapDbHelper.getBitmapsByPage(page,BitmapAdapter.PAGE_LIMIT)
-                println(data)
-                page++
-                withContext(Dispatchers.Main) {
-                    adapterBitmap.addAllData(data)
+//            layoutManager = GridLayoutManager(this@MainActivity,3)
+            loadMore {
+                lifecycleScope.launch(Dispatchers.IO) {
+                    val data = bitmapDbHelper.getBitmapsByPage(page,20)
+                    withContext(Dispatchers.Main) {
+                        adapterBitmap.addAllData(data)
+                    }
+                    page++
                 }
             }
         }
