@@ -13,7 +13,7 @@ import java.util.*
 
 class BitmapAdapter : BaseRclvAdapter<BitmapAdapter.BitmapVHData>() {
     companion object {
-        const val PAGE_LIMIT = 10
+        const val PAGE_LIMIT = 50
         const val MAX_CACHE_PAGE_SIZE = 50
         const val PAYLOAD_COUNTER = 123
     }
