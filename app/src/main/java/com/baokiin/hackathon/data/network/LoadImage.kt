@@ -53,7 +53,7 @@ class DoubleCache : ImageCache {
     }
 
     override fun put(url: String, bitmap: Bitmap?) {
-        val bitmap = getScaledBitmap(bitmap, 40, 40)
+        val bitmap = getScaledBitmap(bitmap, 60, 60)
         memCache.put(url, bitmap)
         diskCache.put(url, bitmap)
     }

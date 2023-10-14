@@ -23,8 +23,7 @@ import kotlinx.coroutines.withContext
 
 
 class BitmapDetailActivity :
-    BaseActivity<ActivityBitmapDetailBinding>(R.layout.activity_bitmap_detail),
-    View.OnTouchListener {
+    BaseActivity<ActivityBitmapDetailBinding>(R.layout.activity_bitmap_detail), View.OnTouchListener{
 
 
     companion object {
@@ -57,6 +56,7 @@ class BitmapDetailActivity :
     var start = PointF()
     var mid = PointF()
     var oldDist = 1f
+    var downPoint = PointF()
 
 
     private var scaleFactor = 1.0f
@@ -95,26 +95,15 @@ class BitmapDetailActivity :
         }
     }
 
+    var imageMatrix:Matrix? =null
     override fun listenerView() {
+        imageMatrix = binding.imgDetail.imageMatrix
         bitmapDetailAdapter.setOnListener {
+            scaleFactor = scaleFactor.coerceIn(1f, 1f)
+            matrix.setScale(scaleFactor, scaleFactor)
+            binding.imgDetail.imageMatrix = matrix
             loadImage(it.path)
         }
-//        object : VNPOnSwipeTouchListener(this) {
-//            override fun onSwipeRight() {
-//                bitmapDetailAdapter.nextItem()
-//            }
-//
-//            override fun onSwipeLeft() {
-//                bitmapDetailAdapter.prevItem()
-//            }
-//
-//            override fun onSwipeTop() {
-//            }
-//
-//            override fun onSwipeBottom() {
-//            }
-//
-//        }
     }
 
     private fun loadImage(url: String) {
@@ -138,11 +127,12 @@ class BitmapDetailActivity :
         }
     }
 
+
+
     override fun onTouch(v: View, event: MotionEvent): Boolean {
         val view = v as ImageView
         view.scaleType = ImageView.ScaleType.MATRIX
         val scale: Float
-
         dumpEvent(event)
         // Handle touch events here...
 
@@ -150,6 +140,7 @@ class BitmapDetailActivity :
             MotionEvent.ACTION_DOWN -> {
                 matrix.set(view.imageMatrix)
                 savedMatrix.set(matrix)
+                downPoint.set(event.x,event.y)
                 start[event.getX()] = event.getY()
                 Log.d(TAG, "mode=DRAG") // write to LogCat
                 mode = DRAG
@@ -173,11 +164,12 @@ class BitmapDetailActivity :
 
             MotionEvent.ACTION_MOVE -> {
                 if (mode === DRAG) {
-                    matrix.set(savedMatrix)
-                    matrix.postTranslate(
-                        event.getX() - start.x,
-                        event.getY() - start.y
-                    ) // create the transformation in the matrix  of points
+                    val x = event.x - downPoint.x
+                    if(x < 0 )
+                        bitmapDetailAdapter.nextItem()
+                    else
+                        bitmapDetailAdapter.prevItem()
+                    mode = NONE
                 } else if (mode === ZOOM) {
                     // pinch zooming
                     val newDist: Float = spacing(event)

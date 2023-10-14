@@ -16,8 +16,9 @@ class BitmapDbHelper(context: Context) : SqlDbHelper(
     }
 
     override fun createTable() = "CREATE TABLE ${BITMAP_TABLE.TABLE_NAME} (" +
+            "${BITMAP_TABLE.COLUMN_ID} INTEGER PRIMARY KEY AUTOINCREMENT," +
             "${BITMAP_TABLE.COLUMN_NAME} TEXT," +
-            "${BITMAP_TABLE.COLUMN_PATH} TEXT PRIMARY KEY," +
+            "${BITMAP_TABLE.COLUMN_PATH} TEXT," +
             "${BITMAP_TABLE.COLUMN_SIZE} TEXT)"
 
     override fun deleteTable() = "DROP TABLE IF EXISTS ${BITMAP_TABLE.TABLE_NAME}"

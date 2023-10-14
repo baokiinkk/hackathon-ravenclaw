@@ -60,21 +60,29 @@ class BitmapDetailAdapter : BaseRclvAdapter<BitmapAdapter.BitmapVHData>() {
     }
 
     fun nextItem() {
-        currentPosition += 1
-        dataSet[oldPositionItem].isSelected = false
-        notifyItemChanged(oldPositionItem, PAYLOAD_ITEM_SELECTED)
-        dataSet[currentPosition].isSelected = true
-        notifyItemChanged(currentPosition, PAYLOAD_ITEM_SELECTED)
-        oldPositionItem = currentPosition
+        if(currentPosition < dataSet.size) {
+            currentPosition += 1
+            dataSet[oldPositionItem].isSelected = false
+            notifyItemChanged(oldPositionItem, PAYLOAD_ITEM_SELECTED)
+            dataSet[currentPosition].isSelected = true
+            notifyItemChanged(currentPosition, PAYLOAD_ITEM_SELECTED)
+            oldPositionItem = currentPosition
+
+            onItemClick?.invoke(dataSet[currentPosition].realData)
+        }
     }
 
     fun prevItem() {
-        currentPosition -= 1
-        dataSet[oldPositionItem].isSelected = false
-        notifyItemChanged(oldPositionItem, PAYLOAD_ITEM_SELECTED)
-        dataSet[currentPosition].isSelected = true
-        notifyItemChanged(currentPosition, PAYLOAD_ITEM_SELECTED)
-        oldPositionItem = currentPosition
+        if(currentPosition != 0) {
+            currentPosition -= 1
+            dataSet[oldPositionItem].isSelected = false
+            notifyItemChanged(oldPositionItem, PAYLOAD_ITEM_SELECTED)
+            dataSet[currentPosition].isSelected = true
+            notifyItemChanged(currentPosition, PAYLOAD_ITEM_SELECTED)
+            oldPositionItem = currentPosition
+            onItemClick?.invoke(dataSet[currentPosition].realData)
+
+        }
     }
 
 

@@ -19,6 +19,7 @@ import com.baokiin.hackathon.ui.main.detail.BitmapDetailActivity
 import com.baokiin.hackathon.utils.FileUtils
 import com.baokiin.hackathon.utils.PermissionUtils
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -42,8 +43,13 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
     }
 
     override fun onDestroy() {
-        LoadImage.clearDiskCache()
-        super.onDestroy()
+        lifecycleScope.launch(Dispatchers.IO){
+            LoadImage.clearDiskCache()
+            bitmapDbHelper.deleteTable()
+            withContext(Dispatchers.Main){
+                super.onDestroy()
+            }
+        }
     }
 
     override fun listenerView() {
