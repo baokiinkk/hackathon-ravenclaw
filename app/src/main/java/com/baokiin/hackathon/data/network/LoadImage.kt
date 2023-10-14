@@ -4,37 +4,36 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.LruCache
 import android.widget.ImageView
-import com.baokiin.hackathon.ui.main.AppExecutors
+import com.baokiin.hackathon.ui.main.MyApplication
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
+import java.io.File
 import java.math.BigInteger
 import java.security.MessageDigest
 
 
 object LoadImage {
-//    val cache: DoubleCache = DoubleCache()
-
-    private val memCache = MemoryCache()
-    private val diskCache = DiskCache()
+    val cache: DoubleCache = DoubleCache()
 
     fun ImageView.load(url: String) {
-        tag = url
-        AppExecutors.getInstance().diskIO().execute {
-            var bitmap: Bitmap? = memCache.get(url)
+        CoroutineScope(Dispatchers.IO).launch {
+            var bitmap: Bitmap? = cache.get(url)
             if (bitmap == null) {
-                bitmap = diskCache.get(url)
-                bitmap = getScaledBitmap(bitmap,100,100)
-                memCache.put(url,bitmap)
+                bitmap = BitmapFactory.decodeFile(url)
+                cache.put(url,bitmap)
             }
-            AppExecutors.getInstance().mainThread().execute {
-                setImageBitmap(bitmap)
+            withContext(Dispatchers.Main) {
+                setImageBitmap(cache.get(url))
             }
         }
 
     }
 
     fun clearDiskCache() {
-        memCache.clear()
-        diskCache.clear()
+        cache.clear()
     }
 }
 
@@ -48,6 +47,7 @@ class DoubleCache : ImageCache {
     }
 
     override fun put(url: String, bitmap: Bitmap?) {
+        val bitmap = getScaledBitmap(bitmap, 40, 40)
         memCache.put(url, bitmap)
     }
 
@@ -55,6 +55,7 @@ class DoubleCache : ImageCache {
         memCache.clear()
     }
 }
+
 private fun getScaledBitmap(b: Bitmap?, reqWidth: Int, reqHeight: Int): Bitmap? {
     b?.let {
         val bWidth = b.width
@@ -107,15 +108,28 @@ class MemoryCache : ImageCache {
 }
 
 class DiskCache() : ImageCache {
-    override fun get(url: String): Bitmap {
-        return BitmapFactory.decodeFile(url)
-//        val file = File(url)
-//        return file.readBytes().toBitmap()
+    override fun get(url: String): Bitmap? {
+        val file = File(MyApplication.getApplication().cacheDir, url.md5())
+        return if (file.exists()) {
+            file.readBytes().toBitmap()
+        } else {
+            null
+        }
     }
 
     override fun clear() {}
 
     override fun put(url: String, bitmap: Bitmap?) {
+        bitmap?.let {
+            try {
+                val file = File(MyApplication.getApplication().cacheDir, url.md5())
+                if (!file.exists())
+                    file.parentFile?.mkdir()
+                file.writeBytes(it.getBytes())
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
     }
 
     private fun Bitmap.getBytes(): ByteArray {

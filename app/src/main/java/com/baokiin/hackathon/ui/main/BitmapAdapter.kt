@@ -14,7 +14,7 @@ import java.util.*
 class BitmapAdapter : BaseRclvAdapter<BitmapAdapter.BitmapVHData>() {
     companion object {
         const val PAGE_LIMIT = 10
-        const val MAX_CACHE_PAGE_SIZE = 3
+        const val MAX_CACHE_PAGE_SIZE = 50
         const val PAYLOAD_COUNTER = 123
     }
 
@@ -62,7 +62,7 @@ class BitmapAdapter : BaseRclvAdapter<BitmapAdapter.BitmapVHData>() {
 
     fun reduceChecked() {
         dataSet.forEachIndexed { index, item ->
-            if (counter != 0) {
+            if (item.counter != 0) {
                 item.counter--
                 notifyItemChanged(index, PAYLOAD_COUNTER)
             }
@@ -85,6 +85,8 @@ class BitmapAdapter : BaseRclvAdapter<BitmapAdapter.BitmapVHData>() {
                     } else {
                         counter--
                         reduceChecked()
+                        cbInfoItmCheck.setText("")
+                        getItem(adapterPosition).counter = 0
                         cbInfoItmCheck.isChecked = false
                     }
                 }
@@ -104,7 +106,11 @@ class BitmapAdapter : BaseRclvAdapter<BitmapAdapter.BitmapVHData>() {
             if (payloads.isNotEmpty()) {
                 when (payloads[0]) {
                     PAYLOAD_COUNTER -> {
-                        binding.cbInfoItmCheck.text = getItem(adapterPosition).counter.toString()
+                        if (getItem(adapterPosition).counter == 0)
+                            binding.cbInfoItmCheck.text = ""
+                        else
+                            binding.cbInfoItmCheck.text =
+                                getItem(adapterPosition).counter.toString()
                     }
                 }
             }
@@ -112,7 +118,7 @@ class BitmapAdapter : BaseRclvAdapter<BitmapAdapter.BitmapVHData>() {
 
         override fun clearData() {
             super.clearData()
-            binding.imvInfoItmAvatar.setImageResource(R.drawable.ic_launcher_background)
+            binding.imvInfoItmAvatar.setBackgroundResource(R.color.black)
         }
     }
 
@@ -179,5 +185,6 @@ class BitmapAdapter : BaseRclvAdapter<BitmapAdapter.BitmapVHData>() {
     class BitmapVHData(realData: BitmapModel) : BaseVHData<BitmapModel>(realData) {
         var counter: Int = 0
         fun getPath() = realData.path
-        fun getSize() = realData.size }
+        fun getSize() = realData.size
+    }
 }

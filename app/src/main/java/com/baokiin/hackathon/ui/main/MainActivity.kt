@@ -39,21 +39,19 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         super.onInitView()
         setupRecyclerView()
         loadImageFromCache()
-        adapterBitmap.handleOther?.let { it() }
     }
 
     private fun setupRecyclerView() {
         binding.rcvMainInfo.apply {
             adapter = adapterBitmap
-//            layoutManager = GridLayoutManager(this@MainActivity,3)
-            loadMore {
-                lifecycleScope.launch(Dispatchers.IO) {
-                    val data = bitmapDbHelper.getBitmapsByPage(page,20)
-                    withContext(Dispatchers.Main) {
-                        adapterBitmap.addAllData(data)
-                    }
-                    page++
+        }
+        adapterBitmap.handleOther = {
+            lifecycleScope.launch(Dispatchers.IO) {
+                val data = bitmapDbHelper.getBitmapsByPage(page,50)
+                withContext(Dispatchers.Main) {
+                    adapterBitmap.addAllData(data)
                 }
+                page++
             }
         }
         initLoadMoreTwoWay()
@@ -84,10 +82,10 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
             val bitmapTmp = mutableListOf<BitmapModel>()
             paths.forEachIndexed { index, bitmapModel ->
                 bitmapDbHelper.insertBitmap(bitmapModel)
-                if (index < 21) {
+                if (index < 51) {
                     bitmapTmp.add(bitmapModel)
                 }
-                if (index == 20) {
+                if (index == 50) {
                     withContext(Dispatchers.Main) {
                         adapterBitmap.updateList(bitmapTmp)
                     }

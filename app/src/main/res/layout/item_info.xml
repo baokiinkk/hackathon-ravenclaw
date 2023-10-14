@@ -18,14 +18,12 @@
             android:id="@+id/imvInfoItmAvatar"
             android:scaleType="fitXY"
             android:padding="5dp"
-            tools:src="@drawable/ic_launcher_background"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
         <CheckedTextView
             android:id="@+id/cbInfoItmCheck"
             android:layout_width="20dp"
             android:layout_height="20dp"
-            android:text="1"
             android:paddingStart="6dp"
             android:gravity="center"
             android:background="@drawable/shape_tron"
