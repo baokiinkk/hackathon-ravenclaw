@@ -60,9 +60,9 @@ class BitmapAdapter : BaseRclvAdapter<BitmapAdapter.BitmapVHData>() {
         notifyItemRangeInserted(dataSet.size, list.size)
     }
 
-    fun reduceChecked() {
+    fun reduceChecked(currentCounter:Int) {
         dataSet.forEachIndexed { index, item ->
-            if (item.counter != 0) {
+            if (item.counter != 0 && item.counter > currentCounter) {
                 item.counter--
                 notifyItemChanged(index, PAYLOAD_COUNTER)
             }
@@ -84,7 +84,7 @@ class BitmapAdapter : BaseRclvAdapter<BitmapAdapter.BitmapVHData>() {
                         cbInfoItmCheck.isChecked = true
                     } else {
                         counter--
-                        reduceChecked()
+                        reduceChecked(getItem(adapterPosition).counter)
                         cbInfoItmCheck.setText("")
                         getItem(adapterPosition).counter = 0
                         cbInfoItmCheck.isChecked = false

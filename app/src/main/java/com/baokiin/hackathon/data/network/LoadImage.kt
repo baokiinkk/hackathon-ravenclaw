@@ -29,7 +29,15 @@ object LoadImage {
                 setImageBitmap(cache.get(url))
             }
         }
-
+    }
+    fun cacheImage(url: String){
+        CoroutineScope(Dispatchers.IO).launch {
+            var bitmap: Bitmap? = cache.get(url)
+            if (bitmap == null) {
+                bitmap = BitmapFactory.decodeFile(url)
+                cache.put(url, bitmap)
+            }
+        }
     }
 
     fun clearDiskCache() {
@@ -49,6 +57,7 @@ class DoubleCache : ImageCache {
     override fun put(url: String, bitmap: Bitmap?) {
         val bitmap = getScaledBitmap(bitmap, 40, 40)
         memCache.put(url, bitmap)
+        diskCache.put(url, bitmap)
     }
 
     override fun clear() {
