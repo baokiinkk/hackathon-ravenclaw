@@ -6,7 +6,7 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.baokiin.hackathon.R
 import com.baokiin.hackathon.bases.activity.BaseActivity
