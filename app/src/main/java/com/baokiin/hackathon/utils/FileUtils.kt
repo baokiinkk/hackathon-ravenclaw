@@ -5,7 +5,7 @@ import com.baokiin.hackathon.data.BitmapModel
 
 object FileUtils {
     fun getAllFilePaths(): List<BitmapModel> {
-        val directory = Environment.getExternalStoragePublicDirectory("dir_003")
+        val directory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM+"/Data")
         return directory.listFiles()?.mapIndexed { index, file ->
             BitmapModel(
                 id = index.toString(),

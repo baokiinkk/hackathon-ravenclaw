@@ -33,7 +33,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
     private val bitmapDbHelper by lazy {
         BitmapDbHelper(this)
     }
-
+    var page = 2
 
     override fun onInitView() {
         super.onInitView()
@@ -45,6 +45,11 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         binding.rcvMainInfo.apply {
             adapter = adapterBitmap
         }
+        adapterBitmap.handleOther = {
+            bitmapDbHelper.getBitmapsByPage(page,10)
+            page++
+        }
+        initLoadMoreTwoWay()
     }
 
     private fun loadImageFromCache() {

@@ -4,17 +4,8 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.LruCache
 import android.widget.ImageView
-import com.baokiin.hackathon.R
-import com.baokiin.hackathon.ui.main.MyApplication
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
-import java.io.File
 import java.math.BigInteger
-import java.net.HttpURLConnection
-import java.net.URL
 import java.security.MessageDigest
 
 object LoadImage {
@@ -24,7 +15,7 @@ object LoadImage {
         tag = url
         val bitmap: Bitmap? = cache.get(url)
         bitmap?.let {
-            setImageBitmap(bitmap)
+            setImageBitmap(getScaledBitmap(bitmap,100,100))
         }
     }
 
@@ -50,7 +41,19 @@ class DoubleCache : ImageCache {
         memCache.clear()
     }
 }
-
+private fun getScaledBitmap(b: Bitmap?, reqWidth: Int, reqHeight: Int): Bitmap? {
+    b?.let {
+        val bWidth = b.width
+        val bHeight = b.height
+        var nWidth = reqWidth
+        var nHeight = reqHeight
+        val parentRatio = reqHeight.toFloat() / reqWidth
+        nHeight = bHeight
+        nWidth = (reqWidth * parentRatio).toInt()
+        return Bitmap.createScaledBitmap(b, nWidth, nHeight, true)
+    }
+    return null
+}
 class MemoryCache : ImageCache {
     private val cache: LruCache<String, Bitmap>
 
@@ -91,7 +94,7 @@ class MemoryCache : ImageCache {
 
 class DiskCache() : ImageCache {
     override fun get(url: String): Bitmap {
-       return BitmapFactory.decodeFile(url)
+        return BitmapFactory.decodeFile(url)
 //        val file = File(url)
 //        return file.readBytes().toBitmap()
     }
