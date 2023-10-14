@@ -66,7 +66,6 @@ class BitmapAdapter : BaseRclvAdapter<BitmapAdapter.BitmapVHData>() {
             vhData: BitmapVHData
         ) {
             binding.apply {
-                tvInfoItmName.text = vhData.getName()
                 imvInfoItmAvatar.load(vhData.getPath())
             }
         }
