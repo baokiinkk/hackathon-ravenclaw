@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
 import android.graphics.PointF
+import android.transition.TransitionInflater
 import android.util.Log
 import android.view.MotionEvent
 import android.view.ScaleGestureDetector
@@ -22,7 +23,8 @@ import kotlinx.coroutines.withContext
 
 
 class BitmapDetailActivity :
-    BaseActivity<ActivityBitmapDetailBinding>(R.layout.activity_bitmap_detail){
+    BaseActivity<ActivityBitmapDetailBinding>(R.layout.activity_bitmap_detail),
+    View.OnTouchListener {
 
 
     companion object {
@@ -62,7 +64,9 @@ class BitmapDetailActivity :
 
     override fun onInitView() {
         super.onInitView()
-
+        window.sharedElementEnterTransition =
+            TransitionInflater.from(this).inflateTransition(R.transition.shared_element_transition)
+        binding.imgDetail.transitionName = bitmapList?.get(0)?.path
         setupRecyclerView()
         setupImageDetail()
     }
@@ -83,27 +87,7 @@ class BitmapDetailActivity :
     private var lastTouchY = 0f
 
     private fun setupImageDetail() {
-        scaleGestureDetector = ScaleGestureDetector(this, ScaleListener())
-        binding.imgDetail.setOnTouchListener { _, event ->
-            when (event.actionMasked) {
-                MotionEvent.ACTION_DOWN -> {
-                    lastTouchX = event.x
-                    lastTouchY = event.y
-                }
-                MotionEvent.ACTION_MOVE -> {
-                    val dx = event.x - lastTouchX
-                    val dy = event.y - lastTouchY
-
-                    lastTouchX = event.x
-                    lastTouchY = event.y
-
-                    matrix.postTranslate(dx, dy)
-                    binding.imgDetail.imageMatrix = matrix
-                }
-            }
-            scaleGestureDetector.onTouchEvent(event)
-            true
-        }
+        binding.imgDetail.setOnTouchListener(this)
         if (!bitmapList.isNullOrEmpty()) {
             bitmapList?.get(0)?.let {
                 loadImage(it.path)
@@ -143,8 +127,6 @@ class BitmapDetailActivity :
     }
 
 
-
-
     private inner class ScaleListener : ScaleGestureDetector.SimpleOnScaleGestureListener() {
         override fun onScale(detector: ScaleGestureDetector): Boolean {
             scaleFactor *= detector.scaleFactor
@@ -156,68 +138,68 @@ class BitmapDetailActivity :
         }
     }
 
-//    override fun onTouch(v: View, event: MotionEvent): Boolean {
-//        val view = v as ImageView
-//        view.scaleType = ImageView.ScaleType.MATRIX
-//        val scale: Float
-//
-//        dumpEvent(event)
-//        // Handle touch events here...
-//
-//        when (event.getAction() and MotionEvent.ACTION_MASK) {
-//            MotionEvent.ACTION_DOWN -> {
-//                matrix.set(view.imageMatrix)
-//                savedMatrix.set(matrix)
-//                start[event.getX()] = event.getY()
-//                Log.d(TAG, "mode=DRAG") // write to LogCat
-//                mode = DRAG
-//            }
-//
-//            MotionEvent.ACTION_UP, MotionEvent.ACTION_POINTER_UP -> {
-//                mode = NONE
-//                Log.d(TAG, "mode=NONE")
-//            }
-//
-//            MotionEvent.ACTION_POINTER_DOWN -> {
-//                oldDist = spacing(event)
-//                Log.d(TAG, "oldDist=$oldDist")
-//                if (oldDist > 5f) {
-//                    savedMatrix.set(matrix)
-//                    midPoint(mid, event)
-//                    mode = ZOOM
-//                    Log.d(TAG, "mode=ZOOM")
-//                }
-//            }
-//
-//            MotionEvent.ACTION_MOVE -> {
-//                if (mode === DRAG) {
-//                    matrix.set(savedMatrix)
-//                    matrix.postTranslate(
-//                        event.getX() - start.x,
-//                        event.getY() - start.y
-//                    ) // create the transformation in the matrix  of points
-//                } else if (mode === ZOOM) {
-//                    // pinch zooming
-//                    val newDist: Float = spacing(event)
-//                    Log.d(TAG, "newDist=$newDist")
-//                    if (newDist > 5f) {
-//                        matrix.set(savedMatrix)
-//                        scale = newDist / oldDist // setting the scaling of the
-//                        // matrix...if scale > 1 means
-//                        // zoom in...if scale < 1 means
-//                        // zoom out
-//                        matrix.postScale(scale, scale, mid.x, mid.y)
-//                    }
-//                }
-//            }
-//        }
-//
-//        view.imageMatrix = matrix // display the transformation on screen
-//
-//
-//        return true // indicate event was handled
-//
-//    }
+    override fun onTouch(v: View, event: MotionEvent): Boolean {
+        val view = v as ImageView
+        view.scaleType = ImageView.ScaleType.MATRIX
+        val scale: Float
+
+        dumpEvent(event)
+        // Handle touch events here...
+
+        when (event.getAction() and MotionEvent.ACTION_MASK) {
+            MotionEvent.ACTION_DOWN -> {
+                matrix.set(view.imageMatrix)
+                savedMatrix.set(matrix)
+                start[event.getX()] = event.getY()
+                Log.d(TAG, "mode=DRAG") // write to LogCat
+                mode = DRAG
+            }
+
+            MotionEvent.ACTION_UP, MotionEvent.ACTION_POINTER_UP -> {
+                mode = NONE
+                Log.d(TAG, "mode=NONE")
+            }
+
+            MotionEvent.ACTION_POINTER_DOWN -> {
+                oldDist = spacing(event)
+                Log.d(TAG, "oldDist=$oldDist")
+                if (oldDist > 5f) {
+                    savedMatrix.set(matrix)
+                    midPoint(mid, event)
+                    mode = ZOOM
+                    Log.d(TAG, "mode=ZOOM")
+                }
+            }
+
+            MotionEvent.ACTION_MOVE -> {
+                if (mode === DRAG) {
+                    matrix.set(savedMatrix)
+                    matrix.postTranslate(
+                        event.getX() - start.x,
+                        event.getY() - start.y
+                    ) // create the transformation in the matrix  of points
+                } else if (mode === ZOOM) {
+                    // pinch zooming
+                    val newDist: Float = spacing(event)
+                    Log.d(TAG, "newDist=$newDist")
+                    if (newDist > 5f) {
+                        matrix.set(savedMatrix)
+                        scale = newDist / oldDist // setting the scaling of the
+                        // matrix...if scale > 1 means
+                        // zoom in...if scale < 1 means
+                        // zoom out
+                        matrix.postScale(scale, scale, mid.x, mid.y)
+                    }
+                }
+            }
+        }
+
+        view.imageMatrix = matrix // display the transformation on screen
+
+
+        return true // indicate event was handled
+
+    }
 
     private fun spacing(event: MotionEvent): Float {
         val x = event.getX(0) - event.getX(1)

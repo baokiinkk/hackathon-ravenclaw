@@ -15,6 +15,7 @@ import com.baokiin.hackathon.extension.RecyclerViewExt.getFirstVisibleItemPositi
 import com.baokiin.hackathon.extension.RecyclerViewExt.getLastVisibleItemPosition
 import com.baokiin.hackathon.extension.launch.VnpayLaunch
 import com.baokiin.hackathon.extension.toJson
+import com.baokiin.hackathon.ui.main.detail.BitmapDetailActivity
 import com.baokiin.hackathon.utils.FileUtils
 import com.baokiin.hackathon.utils.PermissionUtils
 import kotlinx.coroutines.Dispatchers
