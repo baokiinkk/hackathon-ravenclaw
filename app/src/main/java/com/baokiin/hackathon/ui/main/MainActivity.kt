@@ -2,6 +2,7 @@ package com.baokiin.hackathon.ui.main
 
 import android.content.ContentResolver
 import android.content.Context
+import android.graphics.Bitmap
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
@@ -39,7 +40,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         super.onInitView()
         setupRecyclerView()
         loadImageFromCache()
-        adapterBitmap.handleOther?.let { it() }
     }
 
     private fun setupRecyclerView() {
@@ -84,10 +84,10 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
             val bitmapTmp = mutableListOf<BitmapModel>()
             paths.forEachIndexed { index, bitmapModel ->
                 bitmapDbHelper.insertBitmap(bitmapModel)
-                if (index < 21) {
+                if (index < BitmapAdapter.PAGE_LIMIT + 1) {
                     bitmapTmp.add(bitmapModel)
                 }
-                if (index == 20) {
+                if (index == BitmapAdapter.PAGE_LIMIT) {
                     withContext(Dispatchers.Main) {
                         adapterBitmap.updateList(bitmapTmp)
                     }
@@ -109,13 +109,13 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
                     val canScrollUp = dy < 0
                     if (!adapterBitmap.isLoading) {
                         adapterBitmap.isLoading = true
-                        if (canScrollDown && last + childCount > totalItems) {
+                        if (canScrollDown && last + childCount + BitmapAdapter.PAGE_LIMIT > totalItems) {
                             // neu index cua trang hien tai > 1 thi cache n item dau tien mList
                             if (first / BitmapAdapter.PAGE_LIMIT > 1) {
                                 adapterBitmap.doCacheFirst()
                             }
                             adapterBitmap.insertBelow()
-                        } else if (canScrollUp && first - childCount < 0) {
+                        } else if (canScrollUp && first - childCount - BitmapAdapter.PAGE_LIMIT < 0) {
                             if ((totalItems / BitmapAdapter.PAGE_LIMIT) - (last / BitmapAdapter.PAGE_LIMIT) > 1) {
                                 adapterBitmap.doCacheLast()
                             }
