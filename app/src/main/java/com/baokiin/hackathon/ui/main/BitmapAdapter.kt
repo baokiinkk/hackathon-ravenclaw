@@ -209,9 +209,11 @@ class BitmapAdapter : BaseRclvAdapter<BitmapAdapter.BitmapVHData>() {
         }
     }
 
-    class BitmapVHData(realData: BitmapModel) : BaseVHData<BitmapModel>(realData) {
+    class BitmapVHData(realData: BitmapModel,isSelected:Boolean = false) : BaseVHData<BitmapModel>(realData) {
         var counter: Int = 0
+        var isSelected: Boolean = isSelected
         fun getPath() = realData.path
         fun getSize() = realData.size
+
     }
 }

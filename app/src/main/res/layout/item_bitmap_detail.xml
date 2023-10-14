@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="data"
+            type="com.baokiin.hackathon.ui.main.BitmapAdapter.BitmapVHData" />
+    </data>
+
+    <FrameLayout
+        android:id="@+id/frameRoot"
+        android:layout_width="96dp"
+        android:layout_height="96dp"
+        android:background="@drawable/shape_boder_image">
+
+        <ImageView
+            android:id="@+id/imvInfoItmAvatar"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="5dp"
+            android:scaleType="fitXY" />
+    </FrameLayout>
+</layout>
