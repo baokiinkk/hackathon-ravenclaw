@@ -47,7 +47,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         }
         adapterBitmap.handleOther = {
             lifecycleScope.launch(Dispatchers.IO) {
-                val data = bitmapDbHelper.getBitmapsByPage(page,50)
+                val data = bitmapDbHelper.getBitmapsByPage(page,BitmapAdapter.PAGE_LIMIT)
                 withContext(Dispatchers.Main) {
                     adapterBitmap.addAllData(data)
                 }
@@ -109,12 +109,12 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
                         adapterBitmap.isLoading = true
                         if (canScrollDown && last + childCount + BitmapAdapter.PAGE_LIMIT > totalItems) {
                             // neu index cua trang hien tai > 1 thi cache n item dau tien mList
-                            if (first / BitmapAdapter.PAGE_LIMIT > 1) {
+                            if (first / BitmapAdapter.PAGE_LIMIT > 5) {
                                 adapterBitmap.doCacheFirst()
                             }
                             adapterBitmap.insertBelow()
                         } else if (canScrollUp && first - childCount - BitmapAdapter.PAGE_LIMIT < 0) {
-                            if ((totalItems / BitmapAdapter.PAGE_LIMIT) - (last / BitmapAdapter.PAGE_LIMIT) > 1) {
+                            if ((totalItems / BitmapAdapter.PAGE_LIMIT) - (last / BitmapAdapter.PAGE_LIMIT) > 5) {
                                 adapterBitmap.doCacheLast()
                             }
                             adapterBitmap.insertAbove()
