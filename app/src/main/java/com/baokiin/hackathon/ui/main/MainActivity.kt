@@ -48,9 +48,9 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
     override fun listenerView() {
         super.listenerView()
         binding.next.setOnClickListener {
-            val intent = Intent(this,BitmapDetailActivity::class.java)
-            intent.putExtra(BitmapDetailActivity.EXTRA_LIST_MODEL,listNext?.toJson())
-            startActivity(intent)
+            listNext?.get(0)?.path?.let { path ->
+                goDetailScreen(it, path)
+            }
         }
     }
     private fun setupRecyclerView() {
@@ -63,16 +63,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
             binding.next.visibility = if (it.isEmpty()) View.GONE else View.VISIBLE
         }
         adapterBitmap.setItemClick {view,data->
-            val optionsCompat: ActivityOptionsCompat =
-                ActivityOptionsCompat.makeSceneTransitionAnimation(
-                    this,
-                    view,
-                    data.path
-                )
             listNext = mutableListOf(data)
-            val intent = Intent(this,BitmapDetailActivity::class.java)
-            intent.putExtra(BitmapDetailActivity.EXTRA_LIST_MODEL,listNext?.toJson())
-            startActivity(intent,optionsCompat.toBundle())
+            goDetailScreen(view,data.path)
         }
         adapterBitmap.handleOther = {
             lifecycleScope.launch(Dispatchers.IO) {
@@ -84,7 +76,17 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
             }
         }
     }
-
+    private fun goDetailScreen(view: View,path:String){
+        val optionsCompat: ActivityOptionsCompat =
+            ActivityOptionsCompat.makeSceneTransitionAnimation(
+                this,
+                view,
+                path
+            )
+        val intent = Intent(this,BitmapDetailActivity::class.java)
+        intent.putExtra(BitmapDetailActivity.EXTRA_LIST_MODEL,listNext?.toJson())
+        startActivity(intent,optionsCompat.toBundle())
+    }
     private fun loadImageFromCache() {
         vnpayLaunch.launchPermission(
             arrayPermission = PermissionUtils.permissionStorage(),

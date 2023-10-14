@@ -37,7 +37,6 @@
                 android:layout_marginEnd="10dp"
                 android:textAlignment="center"
                 android:background="@drawable/shape_tron"
-                android:gravity="center"
 
                 />
         </FrameLayout>
