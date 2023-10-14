@@ -1,12 +1,9 @@
 package com.baokiin.hackathon.ui.main
 
-import android.content.ContentResolver
-import android.content.Context
-import android.os.Build
-import android.os.Bundle
-import android.provider.MediaStore
+import android.content.Intent
+import android.view.View
+import androidx.core.app.ActivityOptionsCompat
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.baokiin.hackathon.R
 import com.baokiin.hackathon.bases.activity.BaseActivity
@@ -16,8 +13,8 @@ import com.baokiin.hackathon.data.sql.BitmapDbHelper
 import com.baokiin.hackathon.databinding.ActivityMainBinding
 import com.baokiin.hackathon.extension.RecyclerViewExt.getFirstVisibleItemPosition
 import com.baokiin.hackathon.extension.RecyclerViewExt.getLastVisibleItemPosition
-import com.baokiin.hackathon.extension.RecyclerViewExt.loadMore
 import com.baokiin.hackathon.extension.launch.VnpayLaunch
+import com.baokiin.hackathon.extension.toJson
 import com.baokiin.hackathon.utils.FileUtils
 import com.baokiin.hackathon.utils.PermissionUtils
 import kotlinx.coroutines.Dispatchers
@@ -33,17 +30,49 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
     private val bitmapDbHelper by lazy {
         BitmapDbHelper(this)
     }
+    var listNext: List<BitmapModel>? = null
     var page = 2
 
     override fun onInitView() {
         super.onInitView()
         setupRecyclerView()
         loadImageFromCache()
+        initLoadMoreTwoWay()
     }
 
+    override fun onDestroy() {
+        LoadImage.clearDiskCache()
+        super.onDestroy()
+    }
+
+    override fun listenerView() {
+        super.listenerView()
+        binding.next.setOnClickListener {
+            val intent = Intent(this,BitmapDetailActivity::class.java)
+            intent.putExtra(BitmapDetailActivity.EXTRA_LIST_MODEL,listNext?.toJson())
+            startActivity(intent)
+        }
+    }
     private fun setupRecyclerView() {
         binding.rcvMainInfo.apply {
             adapter = adapterBitmap
+        }
+        adapterBitmap.setItemCheckedClick {
+            listNext = it
+            binding.next.text = it.size.toString()
+            binding.next.visibility = if (it.isEmpty()) View.GONE else View.VISIBLE
+        }
+        adapterBitmap.setItemClick {view,data->
+            val optionsCompat: ActivityOptionsCompat =
+                ActivityOptionsCompat.makeSceneTransitionAnimation(
+                    this,
+                    view,
+                    data.path
+                )
+            listNext = mutableListOf(data)
+            val intent = Intent(this,BitmapDetailActivity::class.java)
+            intent.putExtra(BitmapDetailActivity.EXTRA_LIST_MODEL,listNext?.toJson())
+            startActivity(intent,optionsCompat.toBundle())
         }
         adapterBitmap.handleOther = {
             lifecycleScope.launch(Dispatchers.IO) {
@@ -54,7 +83,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
                 page++
             }
         }
-        initLoadMoreTwoWay()
     }
 
     private fun loadImageFromCache() {
@@ -81,9 +109,10 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
             val paths = FileUtils.getAllFilePaths()
             val bitmapTmp = mutableListOf<BitmapModel>()
             paths.forEachIndexed { index, bitmapModel ->
-                bitmapDbHelper.insertBitmap(bitmapModel)
                 if (index < BitmapAdapter.PAGE_LIMIT + 1) {
                     bitmapTmp.add(bitmapModel)
+                } else {
+                    bitmapDbHelper.insertBitmap(bitmapModel)
                 }
                 if (index == BitmapAdapter.PAGE_LIMIT) {
                     withContext(Dispatchers.Main) {
@@ -96,7 +125,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
 
     private fun initLoadMoreTwoWay() {
         binding.rcvMainInfo.apply {
-            addOnScrollListener(object: RecyclerView.OnScrollListener() {
+            addOnScrollListener(object : RecyclerView.OnScrollListener() {
                 override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                     super.onScrolled(recyclerView, dx, dy)
                     val totalItems = layoutManager?.itemCount ?: 0
@@ -125,10 +154,5 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
                 }
             })
         }
-    }
-
-    override fun onDestroy() {
-        LoadImage.clearDiskCache()
-        super.onDestroy()
     }
 }

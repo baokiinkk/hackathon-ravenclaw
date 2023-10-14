@@ -8,7 +8,7 @@
 
     </data>
 
-    <LinearLayout
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context=".ui.main.MainActivity">
@@ -21,6 +21,17 @@
             app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
             app:spanCount="3"
             tools:listitem="@layout/item_info" />
-
-    </LinearLayout>
+        <TextView
+            android:id="@+id/next"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_margin="20dp"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            android:visibility="gone"
+            android:background="@drawable/ic_radio_checked"
+            android:gravity="center"
+            android:layout_gravity="end|bottom"
+            />
+    </FrameLayout>
 </layout>
