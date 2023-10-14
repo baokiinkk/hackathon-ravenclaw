@@ -16,8 +16,7 @@ class BitmapDbHelper(context: Context) : SqlDbHelper(
     }
 
     override fun createTable() = "CREATE TABLE ${BITMAP_TABLE.TABLE_NAME} (" +
-            "${BITMAP_TABLE.COLUMN_ID} INTEGER PRIMARY KEY AUTOINCREMENT," +
-            "${BITMAP_TABLE.COLUMN_NAME} TEXT," +
+            "${BITMAP_TABLE.COLUMN_NAME} TEXT PRIMARY KEY," +
             "${BITMAP_TABLE.COLUMN_PATH} TEXT," +
             "${BITMAP_TABLE.COLUMN_SIZE} TEXT)"
 
